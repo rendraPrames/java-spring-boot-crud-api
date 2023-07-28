@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.DataAccessException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -126,5 +127,20 @@ class ItemServiceImplTest {
         assertEquals("Items retrieved successfully", response.getMessage());
         assertNotNull(response.getData());
         assertEquals(items, response.getData());
+    }
+
+    @Test
+    void testGetAll_Exception() {
+        // Simulate that an exception occurs while fetching items
+        when(itemRepository.findAll()).thenThrow(NotFoundException.class);
+
+        // Call the method under test and expect NotFoundException
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            itemService.getAll();
+        });
+
+        assertEquals("Failed to retrieve items: null", exception.getMessage());
+
+        verify(itemRepository, times(1)).findAll();
     }
 }

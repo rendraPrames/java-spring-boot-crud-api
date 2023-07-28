@@ -82,16 +82,13 @@ public class TransactionServiceImpl implements CrudService<Transaction, Long> {
     }
 
     public BigDecimal calculateTotalPrice(Long transactionId) {
-        Optional<Transaction> optionalTransaction = transactionRepository.findById(transactionId);
-        if (optionalTransaction.isPresent()) {
-            Transaction transaction = optionalTransaction.get();
-            List<Item> items = transaction.getItems();
-            return items.stream()
-                    .map(Item::getPrice)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add)
-                    .setScale(2, RoundingMode.HALF_UP);
-        } else {
-            throw new NotFoundException("Transaction not found with ID: " + transactionId);
-        }
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new NotFoundException("Transaction not found with ID: " + transactionId));
+
+        List<Item> items = transaction.getItems();
+        return items.stream()
+                .map(Item::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 }
